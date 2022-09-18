@@ -1,13 +1,9 @@
 package main
 
 import (
-	
-	"github.com/amyu98/go-lak/cmd"
+	"server"
 )
 
 func main() {
-
-    
-    cmd.Execute()
-	
+	server.Run()
 }
