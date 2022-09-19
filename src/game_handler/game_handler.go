@@ -2,6 +2,7 @@ package game_handler
 
 import (
 	"encoding/json"
+	"github.com/amyu98/lak/models"
 	"net/http"
 )
 
