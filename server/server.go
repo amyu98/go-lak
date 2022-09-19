@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"game_handler"
+	"github.com/amyu98/go-lak/game_handler"
 	"log"
 	"net/http"
 )

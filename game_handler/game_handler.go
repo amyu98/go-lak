@@ -1,21 +1,20 @@
 package game_handler
 
 import (
-	"models"
-	"net/http"
 	"encoding/json"
+	"github.com/amyu98/go-lak/models"
+	"net/http"
 )
 
-
 func NewGameHandler(w http.ResponseWriter, r *http.Request) {
-	
+
 	initState := [24]models.Cell{
 		models.Cell{Index: 0, WhitePieces: 0, BlackPieces: 2},
 		models.Cell{Index: 1, WhitePieces: 0, BlackPieces: 0},
 		models.Cell{Index: 2, WhitePieces: 0, BlackPieces: 0},
 		models.Cell{Index: 3, WhitePieces: 0, BlackPieces: 0},
 		models.Cell{Index: 4, WhitePieces: 0, BlackPieces: 0},
-	 	models.Cell{Index: 5, WhitePieces: 5, BlackPieces: 0},
+		models.Cell{Index: 5, WhitePieces: 5, BlackPieces: 0},
 		models.Cell{Index: 6, WhitePieces: 0, BlackPieces: 0},
 		models.Cell{Index: 7, WhitePieces: 3, BlackPieces: 0},
 		models.Cell{Index: 8, WhitePieces: 0, BlackPieces: 0},
@@ -42,4 +41,3 @@ func NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(res)
 }
-

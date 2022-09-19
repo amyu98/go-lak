@@ -1,7 +1,7 @@
 package main
 
 import (
-	"server"
+	"github.com/amyu98/go-lak/server"
 )
 
 func main() {
