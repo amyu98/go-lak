@@ -2,7 +2,6 @@ package game_handler
 
 import (
 	"encoding/json"
-	"github.com/amyu98/go-lak/models"
 	"net/http"
 )
 
