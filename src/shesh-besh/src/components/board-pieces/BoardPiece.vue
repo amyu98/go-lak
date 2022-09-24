@@ -14,7 +14,6 @@ export default {
     },
     computed: {
         pieceClass() {
-            console.log(this.pieceColor);
             return {
                 'black-piece': this.pieceColor === 'black',
                 'white-piece': this.pieceColor === 'white'

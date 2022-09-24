@@ -26,6 +26,7 @@ export default {
     flex-direction: column;
     background: beige;
     height: 100%;
+    border: 1px solid #dbdbdb;
 }
 .pieces-list {
     display: flex;

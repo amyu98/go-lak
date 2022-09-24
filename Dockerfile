@@ -1,15 +1,16 @@
-FROM golang:1.18-bullseye
+FROM golang:1.19.1-alpine3.16 as builder
 
-RUN go install github.com/beego/bee/v2@latest
+COPY go.mod go.sum /go/src/github.com/amyu98/go-lak/
+WORKDIR /go/src/github.com/amyu98/go-lak
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o build/lak github.com/amyu98/go-lak
 
-ENV GO111MODULE=on
-ENV GOFLAGS=-mod=vendor
+FROM alpine
 
-ENV APP_HOME /go/src
-RUN mkdir -p "$APP_HOME"
-COPY . "$APP_HOME"
-COPY ./src/main.go "$APP_HOME"
+#RUN apk add --no-cache ca-certificates && update-ca-certificates
+COPY --from=builder /go/src/github.com/amyu98/go-lak/build/lak /usr/bin/lak
 
-WORKDIR "$APP_HOME"
-EXPOSE 8080
-CMD ["bee", "run"]
+WORKDIR  /go/src/github.com/amyu98/go-lak
+
+EXPOSE 8080 8080

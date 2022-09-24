@@ -2,21 +2,21 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/amyu98/go-lak/version"
+	"github.com/amyu98/go-lak/src/lakversion"
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
+// versionCmd represents the lakversion command
 var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version number of generated code example",
+	Use:   "lakversion",
+	Short: "Print the lakversion number of generated code example",
 	Long:  `All software has versions. This is generated code example`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Build Date:", version.BuildDate)
-		fmt.Println("Git Commit:", version.GitCommit)
-		fmt.Println("Version:", version.Version)
-		fmt.Println("Go Version:", version.GoVersion)
-		fmt.Println("OS / Arch:", version.OsArch)
+		fmt.Println("Build Date:", lakversion.BuildDate)
+		fmt.Println("Git Commit:", lakversion.GitCommit)
+		fmt.Println("Version:", lakversion.Version)
+		fmt.Println("Go Version:", lakversion.GoVersion)
+		fmt.Println("OS / Arch:", lakversion.OsArch)
 	},
 }
 

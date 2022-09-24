@@ -3,9 +3,15 @@
     <h1>Shesh Besh</h1>
   </header>
 
-  Board:
+  <button @click="rollDice">Roll The Dice</button>
+  <DiceContainer :dices="dices" />
+
   <div class="board">
-    <div class="row" v-for="row in rows">
+    <div
+      class="row"
+      v-for="(row, index) in rows"
+      v-bind:class="rowClass(index)"
+    >
       <div class="section" v-for="section in row">
         <div class="cell" v-for="cell in section">
           <BoardCell :cell="cell" />
@@ -17,9 +23,10 @@
 
 <script>
 import BoardCell from "../board-cell/BoardCell";
+import DiceContainer from "../dice-container/DiceContainer";
 export default {
   name: "MainBoard",
-  components: { BoardCell },
+  components: { BoardCell, DiceContainer },
   props: {
     rawBoard: {
       type: Array,
@@ -29,6 +36,7 @@ export default {
   data() {
     return {
       rows: [],
+      dices: [],
     };
   },
   mounted() {
@@ -36,6 +44,12 @@ export default {
   },
   computed: {},
   methods: {
+    rowClass(index) {
+      if (index == 0) {
+        return "top-row";
+      }
+      return "bottom-row";
+    },
     rawBoardToRows(rawBoard) {
       const rows = [];
       for (let i = 0; i < 2; i++) {
@@ -52,6 +66,12 @@ export default {
       }
       return rows;
     },
+    rollDice() {
+      this.dices = [];
+      for (let i = 0; i < 2; i++) {
+        this.dices.push(Math.floor(Math.random() * 6) + 1);
+      }
+    },
   },
 };
 </script>
@@ -62,22 +82,39 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 80vh;
+  height: 45vh;
 }
 
 .section {
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
   height: 100%;
+  border: 3px solid black;
+  margin: 1px;
 }
 
 .row {
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
   height: 45%;
+  margin: 3px;
+}
+
+.top-row {
+  flex-direction: row;
+}
+
+.bottom-row {
+  flex-direction: row-reverse;
+}
+
+.bottom-row .section {
+  flex-direction: row-reverse;
+}
+
+.bottom-row .cell {
+  justify-content: end;
 }
 </style>
