@@ -29,4 +29,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Content-Type", "text/html; charset=utf-8")
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }

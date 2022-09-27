@@ -14,7 +14,11 @@
     >
       <div class="section" v-for="section in row">
         <div class="cell" v-for="cell in section">
-          <BoardCell :cell="cell" />
+          <BoardCell
+            :cell="cell"
+            @cellClick="cellClick"
+            :optinalMove="optionalMoves.includes(cell.Index)"
+          />
         </div>
       </div>
     </div>
@@ -24,23 +28,24 @@
 <script>
 import BoardCell from "../board-cell/BoardCell";
 import DiceContainer from "../dice-container/DiceContainer";
+import { getPossibleMoves } from "../../api";
+import { useBoardState } from "../../store/state";
+
 export default {
   name: "MainBoard",
   components: { BoardCell, DiceContainer },
-  props: {
-    rawBoard: {
-      type: Array,
-      required: true,
-    },
-  },
+  props: {},
   data() {
     return {
       rows: [],
       dices: [],
+      optionalMoves: [],
     };
   },
   mounted() {
-    this.rows = this.rawBoardToRows(this.rawBoard);
+    this.state = useBoardState();
+    this.rows = this.rawBoardToRows(this.state.board);
+    this.rollDice();
   },
   computed: {},
   methods: {
@@ -71,7 +76,54 @@ export default {
       for (let i = 0; i < 2; i++) {
         this.dices.push(Math.floor(Math.random() * 6) + 1);
       }
+      this.state.setDice(this.dices);
     },
+    async cellClick(cell) {
+      switch (this.state.moveState) {
+        case "selecting":
+          this.indicatePossibleMoves(cell);
+          break;
+        case "moving":
+          this.movePiece(cell);
+          break;
+        default:
+          break;
+      }
+    },
+    async indicatePossibleMoves(cell) {
+      if (this.cellCannotBeClicked(cell)) {
+        return;
+      }
+      const possibleMoves = await getPossibleMoves(cell);
+      this.markCellsAsPossibleMoves(possibleMoves);
+      this.state.setMoveState("moving");
+    },
+    movePiece(cell) {
+      if (this.cellCannotBeClicked(cell)) {
+        return;
+      }
+      console.log("Moving piece to cell: " + cell.Index);
+      // TODO!
+    },
+    cellCannotBeClicked(cell) {
+      switch (this.state.moveState) {
+        case "selecting":
+          return (
+            cell.BlackPieces == 0 && this.state.turn == "black" ||
+            cell.WhitePieces == 0 && this.state.turn == "white"
+          );
+          break;
+        case "moving":
+          return !this.optionalMoves.includes(cell.Index);
+          break;
+        default:
+          break;
+      }
+    },
+    markCellsAsPossibleMoves(possibleMoves) {
+      this.optionalMoves = possibleMoves;
+    },
+
   },
 };
 </script>

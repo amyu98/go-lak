@@ -1,6 +1,6 @@
 <template>
   
-    <MainBoard v-if="boardIsReady" :rawBoard="rawBoard"/>
+    <MainBoard v-if="boardIsReady"/>
 
 </template>
 
@@ -8,6 +8,7 @@
 
 import MainBoard from '../main-board/MainBoard';
 import { getNewGame, getGame } from '../../api'
+import { useBoardState } from "../../store/state"
 
 export default {
     name: "MainComponent",
@@ -15,13 +16,16 @@ export default {
     data(){
         return {
             boardIsReady: false,
-            rawBoard: []
+            rawBoard: [],
+            state: null,
         }
     },
     computed: {
     },
     mounted() {
+        this.state = useBoardState();
         getNewGame().then((response) => {
+            this.state.setBoard(response);
             this.rawBoard = response;
             this.boardIsReady = true;
         });

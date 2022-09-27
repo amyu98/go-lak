@@ -1,5 +1,5 @@
 <template>
-  <div class="cell">
+  <div class="cell" @click="emitClick" :class="{optional: optinalMove}">
     <div v-for="bp in cell.BlackPieces" class="pieces-list">
       <BoardPiece pieceColor="black" />
     </div>
@@ -15,7 +15,12 @@ import BoardPiece from "../board-pieces/BoardPiece";
 export default {
   name: "BoardCell",
   components: { BoardPiece },
-  props: ["cell"],
+  props: ["cell", "optinalMove"],
+  methods: {
+    emitClick() {
+      this.$emit("cellClick", this.cell);
+    },
+  },
 };
 </script>
 
@@ -32,5 +37,10 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.optional{
+    box-sizing: border-box;
+    border: 2px solid brown;
 }
 </style>
