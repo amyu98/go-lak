@@ -13,7 +13,6 @@ import (
 
 func GetPossibleMoves(s *models.State) []int {
 	usableMoves := getUsableMoves(s)
-	fmt.Println("Usable moves: ", usableMoves)
 	cellIndex := s.SelectedCell
 	possibleCells := []int{}
 	for _, dice := range usableMoves {
@@ -49,79 +48,47 @@ func getMovesFromDice(diceRoll [2]int) []int {
 }
 
 func SelectCell(s *models.State, cellIndex int) {
-	if s.CurrentPlayer == "black" && s.BlackJail > 0 {
-		if cellIndex != -1 {
-			return
-		}
-	} else if s.CurrentPlayer == "white" && s.WhiteJail > 0 {
-		if cellIndex != 24 {
-			return
-		}
-	}
 	s.SelectedCell = cellIndex
 }
 
 func MovePiece(s *models.State, targetCell int) {
-	cellIndex := s.SelectedCell
-	var homeCell int
-	if s.CurrentPlayer == "black" {
-		if cellIndex == -1 {
-			homeCell = s.BlackJail
-		} else {
-			homeCell = s.Board[cellIndex].BlackPieces
-		}
-	} else {
-		if cellIndex == 24 {
-			homeCell = s.WhiteJail
-		} else {
-			homeCell = s.Board[cellIndex].WhitePieces
-		}
+	friendsAtHomeCell := s.FriendsAt(s.SelectedCell)
+	enemiesAtTarget := s.EnemiesAt(targetCell)
+	friendliesAtTarget := s.FriendsAt(targetCell)
+
+	if *friendsAtHomeCell == 0 {
+		gamelogger.LogMessage(s, "No pieces at home cell")
+		return
 	}
-	if s.CurrentPlayer == "black" {
-		if s.Board[targetCell].WhitePieces > 1 || homeCell < 1 {
-			panic("Invalid move")
-		}
-		s.Board[targetCell].BlackPieces++
-		homeCell--
-		if s.Board[targetCell].WhitePieces == 1 {
-			s.Board[targetCell].WhitePieces--
-			s.WhiteJail++
-		}
-	} else {
-		if s.Board[targetCell].BlackPieces > 1 || homeCell < 1 {
-			panic("Invalid move")
-		}
-		s.Board[targetCell].WhitePieces++
-		homeCell--
-		if s.Board[targetCell].BlackPieces == 1 {
-			s.Board[targetCell].BlackPieces--
-			s.BlackJail++
-		}
+	if *enemiesAtTarget > 1 {
+		gamelogger.LogMessage(s, "Target cell is full")
+		return
 	}
-	if s.CurrentPlayer == "black" {
-		if cellIndex == -1 {
-			s.BlackJail = homeCell
-		} else {
-			s.Board[cellIndex].BlackPieces = homeCell
-		}
-	} else {
-		if cellIndex == 24 {
-			s.WhiteJail = homeCell
-		} else {
-			s.Board[cellIndex].WhitePieces = homeCell
-		}
+
+	*friendsAtHomeCell--
+	*friendliesAtTarget++
+
+	if *enemiesAtTarget == 1 {
+		*enemiesAtTarget--
+		*s.EnemyJail()++
 	}
-	moveValue := int(targetCell - cellIndex)
-	s.UsedMoves = append(s.UsedMoves, int(math.Abs(float64(moveValue))))
+
+	gamelogger.LogMessage(s, s.CurrentPlayer + " Moved piece from " + strconv.Itoa(s.SelectedCell) + " to " + strconv.Itoa(targetCell))
+	moveValue := int(math.Abs(float64(int(targetCell - s.SelectedCell))))
+	s.UsedMoves = append(s.UsedMoves, moveValue)
+
 	s.PossibleMoves = GetPossibleMoves(s)
-	if len(s.PossibleMoves) == 0 || homeCell == 0 {
+
+	if len(s.PossibleMoves) == 0 || *friendsAtHomeCell == 0 {
 		s.SelectedCell = -99
 		s.PossibleMoves = []int{}
 	}
 	if len(s.UsedMoves) == len(getMovesFromDice(s.DiceRoll)) {
 		nextTurn(s)
 	}
+
 	potenitalMoves := getAllPotentialMoves(s)
+	gamelogger.LogMessage(s, "Potential moves: " + fmt.Sprint(potenitalMoves))
 	var anyPotentialMoves bool
 	for _, moves := range potenitalMoves {
 		if len(moves) > 0 {
@@ -129,7 +96,9 @@ func MovePiece(s *models.State, targetCell int) {
 			break
 		}
 	}
-	if !anyPotentialMoves {
+	// potenitalMoves at position 5
+	stuckInJail := *s.FriendlyJail() > 0 && len(potenitalMoves[s.FriendlyJailIndex()]) == 0
+	if !anyPotentialMoves || stuckInJail {
 		log := "No possible moves for " + s.CurrentPlayer + ", skipping turn"
 		gamelogger.LogMessage(s, log)
 		nextTurn(s)
@@ -138,11 +107,9 @@ func MovePiece(s *models.State, targetCell int) {
 }
 
 func getAllPotentialMoves(s *models.State) (map[int][]int){
-	// Map of int to int array:
 	poentialMoves := make(map[int][]int)
-	for i, cell := range s.Board {
-		if s.CurrentPlayer == "black" && cell.BlackPieces == 0 ||
-			s.CurrentPlayer == "white" && cell.WhitePieces == 0 {
+	for i,_ := range s.Board {
+		if *s.FriendsAt(i) == 0 {
 			continue
 		}
 		cloneState := reflect.ValueOf(s).Elem().Interface().(models.State)
@@ -150,20 +117,14 @@ func getAllPotentialMoves(s *models.State) (map[int][]int){
 		possibleMoves := GetPossibleMoves(&cloneState)
 		poentialMoves[i] = possibleMoves
 	}
-	if s.CurrentPlayer == "black" && s.BlackJail > 0 {
-		cloneState := reflect.ValueOf(s).Elem().Interface().(models.State)
-		SelectCell(&cloneState, -1)
-		possibleMoves := GetPossibleMoves(&cloneState)
-		poentialMoves[-1] = possibleMoves
-	} else if s.CurrentPlayer == "white" && s.WhiteJail > 0 {
-		cloneState := reflect.ValueOf(s).Elem().Interface().(models.State)
-		SelectCell(&cloneState, 24)
-		possibleMoves := GetPossibleMoves(&cloneState)
-		poentialMoves[24] = possibleMoves
-	}
+
+	cloneState := reflect.ValueOf(s).Elem().Interface().(models.State)
+	SelectCell(&cloneState, s.FriendlyJailIndex())
+	possibleMoves := GetPossibleMoves(&cloneState)
+	poentialMoves[s.FriendlyJailIndex()] = possibleMoves
+
 	return poentialMoves
 }
-
 
 func nextTurn(s *models.State) {
 	s.SelectedCell = -99

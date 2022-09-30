@@ -75,6 +75,5 @@ func getTargetCell(r *http.Request) int {
 	if err != nil {
 		targetCell = -1
 	}
-	fmt.Println(targetCell)
 	return targetCell
 }

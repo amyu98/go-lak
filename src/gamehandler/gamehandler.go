@@ -3,9 +3,10 @@ package gamehandler
 import (
 	"encoding/json"
 	"net/http"
-	"github.com/amyu98/go-lak/src/gamelogger"
+
 	"github.com/amyu98/go-lak/src/constants"
 	"github.com/amyu98/go-lak/src/gamedb"
+	"github.com/amyu98/go-lak/src/gamelogger"
 	"github.com/amyu98/go-lak/src/models"
 	"github.com/amyu98/go-lak/src/statemanager"
 )
@@ -26,8 +27,8 @@ func NewGame(w http.ResponseWriter) {
 		Tick:          0,
 		Logs:          []models.GameLog{},
 	}
-	gamelogger.LogMessage(&state, "Starting new game with slug: " + slug)
-	gamelogger.LogMessage(&state, "Starting player: " + startingPlayer)
+	gamelogger.LogMessage(&state, "Starting new game with slug: "+slug)
+	gamelogger.LogMessage(&state, "Starting player: "+startingPlayer)
 	statemanager.RollDice(&state)
 	gamedb.SaveGame(&state)
 	res, err := json.Marshal(state)
@@ -48,6 +49,7 @@ func RollDice(w http.ResponseWriter, s *models.State) {
 }
 
 func GetGame(w http.ResponseWriter, s *models.State) {
+	s.SelectedCell = -99
 	res, err := json.Marshal(s)
 	if err != nil {
 		panic(err)
@@ -61,11 +63,17 @@ func SelectCell(w http.ResponseWriter, s *models.State, cellIndex int) {
 		s.SelectedCell = -99
 		s.PossibleMoves = []int{}
 	} else {
-		statemanager.SelectCell(s, cellIndex)
-		possibleMoves := statemanager.GetPossibleMoves(s)
-		s.PossibleMoves = possibleMoves
-		if len(possibleMoves) == 0 {
-			s.SelectedCell = -99
+
+		canSelect := (*s.FriendlyJail() == 0 || s.FriendlyJailIndex() == cellIndex) &&
+						*s.FriendsAt(cellIndex) > 0
+
+		if canSelect {
+			statemanager.SelectCell(s, cellIndex)
+			possibleMoves := statemanager.GetPossibleMoves(s)
+			s.PossibleMoves = possibleMoves
+			if len(possibleMoves) == 0 {
+				s.SelectedCell = -99
+			}
 		}
 	}
 	res, err := json.Marshal(s)
