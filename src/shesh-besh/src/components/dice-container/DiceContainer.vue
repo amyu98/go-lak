@@ -1,7 +1,7 @@
 <template>
   <div class="dice-container">
-    <div class="dice" v-for="dice in dices" :key="dice">
-      <GameDice :dice="dice" />
+    <div class="dice" v-for="d in dice" :key="d">
+      <GameDice :dice="d" />
     </div>
   </div>
 </template>
@@ -12,7 +12,7 @@ export default {
   name: "DiceContainer",
   components: { GameDice },
   props: {
-    dices: {
+    dice: {
       type: Array,
       required: true,
     },

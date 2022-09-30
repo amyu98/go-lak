@@ -2,7 +2,7 @@ import axios from "axios"
 import { useBoardState } from "./store/state"
 
 export function initHttp() {
-    axios.defaults.baseURL = "http://localhost:8080";
+    axios.defaults.baseURL = "http://localhost:8080/api/v1";
     axios.defaults.headers.common["Accept"] = "application/json";
     axios.defaults.headers.common["Content-Type"] = "application/json";
     axios.defaults.transformResponse = [
@@ -20,14 +20,15 @@ export const getNewGame = async () => {
 };
 
 export const getPossibleMoves = async (selectedCell) => {
-    const state = useBoardState();
+    const data = await axios.get(
+        `${gameslug}/possible_moves?selectedCell=` + selectedCell.Index
+    );
+    return data.data;
+};
+
+export const movePiece = async (selectedCell, targetCell) => {
     const data = await axios.post(
-        "/possible_moves?selectedCell=" + selectedCell.Index,
-        {
-            "CurrentPlayer": state.turn,
-            "DiceRoll": state.dice,
-            "BoardState": state.board
-        }
+        `${gameslug}/move_piece?selectedCell=${selectedCell.Index}&targetCell=${targetCell.Index}`,
     );
     return data.data;
 };

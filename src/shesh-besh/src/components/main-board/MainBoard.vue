@@ -1,10 +1,9 @@
 <template>
   <header>
-    <h1>Shesh Besh</h1>
+    <!-- <h1>Shesh Besh</h1> -->
   </header>
 
-  <button @click="rollDice">Roll The Dice</button>
-  <DiceContainer :dices="dices" />
+  <DiceContainer :dice="this.dice" />
 
   <div class="board">
     <div
@@ -28,7 +27,7 @@
 <script>
 import BoardCell from "../board-cell/BoardCell";
 import DiceContainer from "../dice-container/DiceContainer";
-import { getPossibleMoves } from "../../api";
+import { getPossibleMoves, movePiece } from "../../api";
 import { useBoardState } from "../../store/state";
 
 export default {
@@ -38,14 +37,19 @@ export default {
   data() {
     return {
       rows: [],
-      dices: [],
+      dice: [],
       optionalMoves: [],
     };
   },
   mounted() {
     this.state = useBoardState();
     this.rows = this.rawBoardToRows(this.state.board);
-    this.rollDice();
+    this.state.$subscribe(() => {
+      this.rows = this.rawBoardToRows(this.state.board);
+      this.optionalMoves = this.state.optionalMoves;
+      this.dice = this.state.dice;
+    });
+    this.state.rollDice();
   },
   computed: {},
   methods: {
@@ -71,59 +75,22 @@ export default {
       }
       return rows;
     },
-    rollDice() {
-      this.dices = [];
-      for (let i = 0; i < 2; i++) {
-        this.dices.push(Math.floor(Math.random() * 6) + 1);
-      }
-      this.state.setDice(this.dices);
-    },
     async cellClick(cell) {
       switch (this.state.moveState) {
         case "selecting":
-          this.indicatePossibleMoves(cell);
+          this.state.setSelectedCell(cell);
+          this.state.indicatePossibleMoves(cell);
           break;
         case "moving":
-          this.movePiece(cell);
+          await this.movePiece(cell);
           break;
         default:
           break;
       }
     },
-    async indicatePossibleMoves(cell) {
-      if (this.cellCannotBeClicked(cell)) {
-        return;
-      }
-      const possibleMoves = await getPossibleMoves(cell);
-      this.markCellsAsPossibleMoves(possibleMoves);
-      this.state.setMoveState("moving");
-    },
-    movePiece(cell) {
-      if (this.cellCannotBeClicked(cell)) {
-        return;
-      }
-      console.log("Moving piece to cell: " + cell.Index);
-      // TODO!
-    },
-    cellCannotBeClicked(cell) {
-      switch (this.state.moveState) {
-        case "selecting":
-          return (
-            cell.BlackPieces == 0 && this.state.turn == "black" ||
-            cell.WhitePieces == 0 && this.state.turn == "white"
-          );
-          break;
-        case "moving":
-          return !this.optionalMoves.includes(cell.Index);
-          break;
-        default:
-          break;
-      }
-    },
-    markCellsAsPossibleMoves(possibleMoves) {
-      this.optionalMoves = possibleMoves;
-    },
-
+    async movePiece(cell) {
+      this.state.movePiece(cell)
+     },
   },
 };
 </script>
