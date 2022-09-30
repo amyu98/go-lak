@@ -21,11 +21,14 @@ func NewGame(w http.ResponseWriter) {
 		CurrentPlayer: startingPlayer,
 		WhiteJail:     0,
 		BlackJail:     0,
+		WhiteGoals:     0,
+		BlackGoals:     0,
 		DiceRoll:      [2]int{0, 0},
 		SelectedCell:  -99,
 		PossibleMoves: []int{},
 		Tick:          0,
 		Logs:          []models.GameLog{},
+		Victory:       "",
 	}
 	gamelogger.LogMessage(&state, "Starting new game with slug: "+slug)
 	gamelogger.LogMessage(&state, "Starting player: "+startingPlayer)
@@ -64,8 +67,8 @@ func SelectCell(w http.ResponseWriter, s *models.State, cellIndex int) {
 		s.PossibleMoves = []int{}
 	} else {
 
-		canSelect := (*s.FriendlyJail() == 0 || s.FriendlyJailIndex() == cellIndex) &&
-						*s.FriendsAt(cellIndex) > 0
+		canSelect := cellIndex != s.EnemyJailIndex() && *s.FriendsAt(cellIndex) > 0 &&
+			(*s.FriendlyJail() == 0 || s.FriendlyJailIndex() == cellIndex)
 
 		if canSelect {
 			statemanager.SelectCell(s, cellIndex)
@@ -90,6 +93,12 @@ func getPieceCountInCell(s *models.State, cellIndex int) int {
 	}
 	if cellIndex == 24 {
 		return s.WhiteJail
+	}
+	if cellIndex == 30 {
+		return s.WhiteGoals
+	}
+	if cellIndex == -30 {
+		return s.BlackGoals
 	}
 	return s.Board[cellIndex].BlackPieces + s.Board[cellIndex].WhitePieces
 }

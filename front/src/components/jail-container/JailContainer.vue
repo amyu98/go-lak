@@ -1,10 +1,10 @@
 <template>
   <div class="jail-container">
-    <div class="jail" @click="jailClicked('white')">
-      White Jail: {{ whiteJail }}
-    </div>
     <div class="jail" @click="jailClicked('black')">
       Black Jail: {{ blackJail }}
+    </div>
+    <div class="jail" @click="jailClicked('white')">
+      White Jail: {{ whiteJail }}
     </div>
   </div>
 </template>

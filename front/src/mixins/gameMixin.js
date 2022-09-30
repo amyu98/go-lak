@@ -47,6 +47,9 @@ export const gameMixin = {
       this.state = useBoardState();
       await this.selectCell({ Index: color == "white" ? 24 : -1 });
     },
+    async goalClicked(color) {
+      await this.movePiece({ Index: color == "white" ? 30 : -30 });
+    },
     async selectCell(cell) {
       this.state = useBoardState();
       const s = await selectCell(cell);

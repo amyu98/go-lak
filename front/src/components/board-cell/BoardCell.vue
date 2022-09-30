@@ -32,6 +32,8 @@ export default {
     background: beige;
     height: 100%;
     border: 1px solid #dbdbdb;
+    flex-wrap: wrap;
+    overflow: hidden;
 }
 .pieces-list {
     display: flex;

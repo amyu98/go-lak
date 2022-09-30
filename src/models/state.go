@@ -10,40 +10,46 @@ type State struct {
 	CurrentPlayer string
 	WhiteJail     int
 	BlackJail     int
+	WhiteGoals     int
+	BlackGoals     int
 	DiceRoll      [2]int
 	SelectedCell  int
 	PossibleMoves []int
 	UsedMoves     []int
 	Tick          int
 	Logs          []GameLog
+	Victory	   	  string
 }
 
 func (s *State) EnemiesAt(cellIndex int) *int {
+	if s.EnemyJailIndex() == cellIndex {
+		return s.EnemyJail()
+	}
+	if s.EnemyGoalIndex() == cellIndex {
+		return s.EnemyGoal()
+	}
+	if cellIndex == s.FriendlyJailIndex() || cellIndex == s.FriendlyGoalIndex() {
+		return nil
+	}
 	if s.CurrentPlayer == "black" {
-		if cellIndex == 24 {
-			return &s.WhiteJail
-		} else {
-			return &s.Board[cellIndex].WhitePieces
-		}
+		return &s.Board[cellIndex].WhitePieces
 	} else {
-		if cellIndex == -1 {
-			return &s.BlackJail
-		} else {
-			return &s.Board[cellIndex].BlackPieces
-		}
+		return &s.Board[cellIndex].BlackPieces
 	}
 }
 
 func (s *State) FriendsAt(cellIndex int) *int {
-	if s.CurrentPlayer == "black" {
-		if cellIndex == -1 {
-			return &s.BlackJail
-		} else {
-			return &s.Board[cellIndex].BlackPieces
-		}
+	if s.FriendlyJailIndex() == cellIndex {
+		return s.FriendlyJail()
+	} else if s.FriendlyGoalIndex() == cellIndex {
+		return s.FriendlyGoal()
+	} else if s.EnemyJailIndex() == cellIndex {
+		panic("Trying to get friends at enemy jail")
+	} else if s.EnemyGoalIndex() == cellIndex {
+		panic("Trying to get friends at enemy goal")
 	} else {
-		if cellIndex == 24 {
-			return &s.WhiteJail
+		if s.CurrentPlayer == "black" {
+			return &s.Board[cellIndex].BlackPieces
 		} else {
 			return &s.Board[cellIndex].WhitePieces
 		}
@@ -79,6 +85,38 @@ func (s *State) EnemyJailIndex() int {
 		return 24
 	} else {
 		return -1
+	}
+}
+
+func (s *State) FriendlyGoalIndex() int {
+	if s.CurrentPlayer == "black" {
+		return -30
+	} else {
+		return 30
+	}
+}
+
+func (s *State) EnemyGoalIndex() int {
+	if s.CurrentPlayer == "black" {
+		return 30
+	} else {
+		return -30
+	}
+}
+
+func (s *State) FriendlyGoal() *int {
+	if s.CurrentPlayer == "black" {
+		return &s.BlackGoals
+	} else {
+		return &s.WhiteGoals
+	}
+}
+
+func (s *State) EnemyGoal() *int {
+	if s.CurrentPlayer == "white" {
+		return &s.BlackGoals
+	} else {
+		return &s.WhiteGoals
 	}
 }
 

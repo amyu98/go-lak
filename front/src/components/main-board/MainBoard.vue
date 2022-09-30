@@ -2,11 +2,29 @@
   <div class="board-wrapper">
     <div class="turn">Turn: {{ this.turn?.toUpperCase() }}</div>
     <DiceContainer :dice="this.dice" />
-
+    {{ this.victory ? this.victory + " Won!" : "" }}
     <div class="center-container">
       <div class="goals">
-        <div class="white-goal goal">White Goal</div>
-        <div class="black-goal goal">Black Goal</div>
+        <div
+          class="white-goal goal"
+          :class="{
+            enabled: this.goalsEnabled['white'],
+            optinal: this.goalsOptinal['white'],
+          }"
+          @click="goalClicked('white')"
+        >
+          {{ this.whiteGoals }} White Goal
+        </div>
+        <div
+          class="black-goal goal"
+          :class="{
+            enabled: this.goalsEnabled['black'],
+            optinal: this.goalsOptinal['black'],
+          }"
+          @click="goalClicked('black')"
+        >
+          {{ this.blackGoals }} Black Goal
+        </div>
       </div>
       <JailContainer @jailClicked="jailClicked" />
       <div class="board">
@@ -48,22 +66,26 @@ export default {
       dice: [],
       possibleMoves: [],
       turn: null,
+      blackGoals: 0,
+      whiteGoals: 0,
+      goalsEnabled: {
+        white: false,
+        black: false,
+      },
+      goalsOptinal: {
+        white: false,
+        black: false,
+      },
+      victory: null,
     };
   },
   mounted() {
     this.state = useBoardState();
-    this.rows = this.rawBoardToRows(this.state.board);
-    this.dice = this.state.diceRoll;
-    this.turn = this.state.currentPlayer;
-    this.possibleMoves = this.state.possibleMoves;
+    this.updateFromState();
     this.state.$subscribe(() => {
-      this.rows = this.rawBoardToRows(this.state.board);
-      this.possibleMoves = this.state.possibleMoves;
-      this.dice = this.state.diceRoll;
-      this.turn = this.state.currentPlayer;
+      this.updateFromState();
     });
   },
-  computed: {},
   methods: {
     rowClass(index) {
       if (index == 0) {
@@ -93,8 +115,23 @@ export default {
     async jailClicked(color) {
       await gameMixin.methods.jailClicked(color);
     },
+    async goalClicked(color) {
+      await gameMixin.methods.goalClicked(color);
+    },
     async movePiece(cell) {
       this.state.movePiece(cell);
+    },
+    updateFromState() {
+      this.state = useBoardState();
+      this.rows = this.rawBoardToRows(this.state.board);
+      this.dice = this.state.diceRoll;
+      this.turn = this.state.currentPlayer;
+      this.possibleMoves = this.state.possibleMoves;
+      this.goalsEnabled = this.state.goalsEnabled;
+      this.goalsOptinal = this.state.goalsOptinal;
+      this.victory = this.state.victory;
+      this.blackGoals = this.state.blackGoals;
+      this.whiteGoals = this.state.whiteGoals;
     },
   },
 };
@@ -120,6 +157,15 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.enabled {
+  background: #d6ffd6;
+  border-radius: 5%;
+}
+
+.optinal {
+  border: 4px solid brown;
 }
 
 .turn {
