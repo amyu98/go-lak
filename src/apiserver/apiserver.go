@@ -2,12 +2,13 @@ package apiserver
 
 import (
 	"fmt"
-	"github.com/amyu98/go-lak/src/gamedb"
-	"github.com/amyu98/go-lak/src/gamehandler"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/amyu98/go-lak/src/gamedb"
+	"github.com/amyu98/go-lak/src/gamehandler"
 )
 
 func Run() {
@@ -51,7 +52,7 @@ func ControlStateless(w http.ResponseWriter, r *http.Request, path string) {
 
 func ControlStatefull(w http.ResponseWriter, r *http.Request, path string) {
 
-	slug := strings.SplitN(strings.TrimPrefix(path, "slug=",), "/", 2)[0]
+	slug := strings.SplitN(strings.TrimPrefix(path, "slug="), "/", 2)[0]
 	path = strings.TrimPrefix(path, fmt.Sprintf("slug=%s/", slug))
 	state := gamedb.LoadGame(slug)
 	cellTarget := getTargetCell(r)
@@ -61,16 +62,14 @@ func ControlStatefull(w http.ResponseWriter, r *http.Request, path string) {
 		gamehandler.GetGame(w, state)
 	case "roll_dice":
 		gamehandler.RollDice(w, state)
-	case "get_possible_moves":
-		gamehandler.GetPossibleMoves(w, state)
-	case "select_piece":
-		gamehandler.SelectPiece(w, state, cellTarget)
+	case "select_cell":
+		gamehandler.SelectCell(w, state, cellTarget)
 	case "move_piece":
 		gamehandler.MovePiece(w, state, cellTarget)
 	}
 }
 
-func getTargetCell(r *http.Request) (int) {
+func getTargetCell(r *http.Request) int {
 	targetCellAsString := r.URL.Query().Get("target_cell")
 	targetCell, err := strconv.Atoi(targetCellAsString)
 	if err != nil {

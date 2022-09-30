@@ -12,23 +12,42 @@ export function initHttp() {
     ];
 }
 
-export const getNewGame = async () => {
+export const createNewGame = async () => {
     const data = await axios.get(
         "/new_game"
     );
     return data.data;
 };
 
-export const getPossibleMoves = async (selectedCell) => {
+export const getGame = async () => {
     const data = await axios.get(
-        `${gameslug}/possible_moves?selectedCell=` + selectedCell.Index
+        `${gameSlugPrefix()}/get_game`
     );
     return data.data;
 };
 
-export const movePiece = async (selectedCell, targetCell) => {
-    const data = await axios.post(
-        `${gameslug}/move_piece?selectedCell=${selectedCell.Index}&targetCell=${targetCell.Index}`,
+export const getPossibleMoves = async (selectedCell) => {
+    const data = await axios.get(
+        `${gameSlugPrefix()}/possible_moves?selectedCell=` + selectedCell.Index
     );
     return data.data;
 };
+
+export const selectCell = async (targetCell) => {
+    const data = await axios.get(
+        `${gameSlugPrefix()}/select_cell?target_cell=` + targetCell.Index
+    );
+    return data.data;
+};
+
+export const movePiece = async (targetCell) => {
+    const data = await axios.post(
+        `${gameSlugPrefix()}/move_piece?target_cell=` + targetCell.Index,
+    );
+    return data.data;
+};
+
+export const gameSlugPrefix = () => {
+    const boardState = useBoardState();
+    return `slug=${boardState.slug}`;
+}

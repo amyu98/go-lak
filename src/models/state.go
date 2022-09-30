@@ -9,4 +9,12 @@ type State struct {
 	DiceRoll      [2]int
 	SelectedCell  int
 	PossibleMoves []int
+	UsedMoves     []int
+	Tick		  int
+	Logs		  []GameLog
+}
+
+type GameLog struct {
+	Tick int
+	Msg string
 }

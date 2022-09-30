@@ -1,23 +1,28 @@
 <template>
-  <header>
-    <!-- <h1>Shesh Besh</h1> -->
-  </header>
+  <div class="board-wrapper">
+    <header>
+      <h1>Shesh Besh</h1>
+      <button @click="newGame">New Game</button>
+    </header>
+    <div>Turn: {{ this.turn }}</div>
+    <DiceContainer :dice="this.dice" />
 
-  <DiceContainer :dice="this.dice" />
+    <JailContainer @jailClicked="jailClicked" />
 
-  <div class="board">
-    <div
-      class="row"
-      v-for="(row, index) in rows"
-      v-bind:class="rowClass(index)"
-    >
-      <div class="section" v-for="section in row">
-        <div class="cell" v-for="cell in section">
-          <BoardCell
-            :cell="cell"
-            @cellClick="cellClick"
-            :optinalMove="optionalMoves.includes(cell.Index)"
-          />
+    <div class="board">
+      <div
+        class="row"
+        v-for="(row, index) in rows"
+        v-bind:class="rowClass(index)"
+      >
+        <div class="section" v-for="section in row">
+          <div class="cell" v-for="cell in section">
+            <BoardCell
+              :cell="cell"
+              @cellClick="cellClick"
+              :optinalMove="possibleMoves.includes(cell.Index)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -27,29 +32,35 @@
 <script>
 import BoardCell from "../board-cell/BoardCell";
 import DiceContainer from "../dice-container/DiceContainer";
+import JailContainer from "../jail-container/JailContainer";
 import { getPossibleMoves, movePiece } from "../../api";
 import { useBoardState } from "../../store/state";
+import { gameMixin } from "../../mixins/gameMixin";
 
 export default {
   name: "MainBoard",
-  components: { BoardCell, DiceContainer },
+  components: { BoardCell, DiceContainer, JailContainer },
   props: {},
   data() {
     return {
       rows: [],
       dice: [],
-      optionalMoves: [],
+      possibleMoves: [],
+      turn: null,
     };
   },
   mounted() {
     this.state = useBoardState();
     this.rows = this.rawBoardToRows(this.state.board);
+    this.dice = this.state.diceRoll;
+    this.turn = this.state.currentPlayer;
+    this.possibleMoves = this.state.possibleMoves;
     this.state.$subscribe(() => {
       this.rows = this.rawBoardToRows(this.state.board);
-      this.optionalMoves = this.state.optionalMoves;
-      this.dice = this.state.dice;
+      this.possibleMoves = this.state.possibleMoves;
+      this.dice = this.state.diceRoll;
+      this.turn = this.state.currentPlayer;
     });
-    this.state.rollDice();
   },
   computed: {},
   methods: {
@@ -76,26 +87,29 @@ export default {
       return rows;
     },
     async cellClick(cell) {
-      switch (this.state.moveState) {
-        case "selecting":
-          this.state.setSelectedCell(cell);
-          this.state.indicatePossibleMoves(cell);
-          break;
-        case "moving":
-          await this.movePiece(cell);
-          break;
-        default:
-          break;
-      }
+      await gameMixin.methods.cellClicked(cell);
+    },
+    async jailClicked(color) {
+      await gameMixin.methods.jailClicked(color);
     },
     async movePiece(cell) {
-      this.state.movePiece(cell)
-     },
+      this.state.movePiece(cell);
+    },
+    async newGame() {
+      await gameMixin.methods.createNewGame();
+    },
   },
 };
 </script>
 
 <style>
+.board-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+}
 .board {
   display: flex;
   flex-direction: column;
