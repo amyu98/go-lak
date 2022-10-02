@@ -2,13 +2,13 @@ package statemanager
 
 import (
 	"fmt"
-	"github.com/amyu98/go-lak/src/gamelogger"
-	"github.com/amyu98/go-lak/src/models"
 	"math"
 	"math/rand"
 	"reflect"
 	"strconv"
 	"strings"
+	"github.com/amyu98/go-lak/src/gamelogger"
+	"github.com/amyu98/go-lak/src/models"
 )
 
 func GetPossibleMoves(s *models.State) []int {
@@ -23,7 +23,7 @@ func GetPossibleMoves(s *models.State) []int {
 			possibleCell = cellIndex - dice
 		}
 		if possibleCell > 23 || possibleCell < 0 {
-			if s.FriendlyInEndGame() || true {
+			if s.FriendlyInEndGame() {
 				possibleCells = append(possibleCells, s.FriendlyGoalIndex())
 			}
 			continue
@@ -42,7 +42,7 @@ func GetPossibleMoves(s *models.State) []int {
 	return possibleCells
 }
 
-func getMovesFromDice(diceRoll [2]int) []int {
+func GetMovesFromDice(diceRoll [2]int) []int {
 	if diceRoll[0] == diceRoll[1] {
 		return []int{diceRoll[0], diceRoll[0], diceRoll[0], diceRoll[0]}
 	} else {
@@ -97,7 +97,7 @@ func MovePiece(s *models.State, targetCell int) {
 
 	s.PossibleMoves = GetPossibleMoves(s)
 
-	if len(s.UsedMoves) == len(getMovesFromDice(s.DiceRoll)) {
+	if len(s.UsedMoves) == len(GetMovesFromDice(s.DiceRoll)) {
 		nextTurn(s)
 	}
 
@@ -156,7 +156,7 @@ func RollDice(s *models.State) {
 }
 
 func GetUsableMoves(s *models.State) []int {
-	usableMoves := getMovesFromDice(s.DiceRoll)
+	usableMoves := GetMovesFromDice(s.DiceRoll)
 	for _, usedMove := range s.UsedMoves {
 		for i, move := range usableMoves {
 			if move == usedMove {

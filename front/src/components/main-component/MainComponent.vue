@@ -4,6 +4,7 @@
       <header>
         <div class="title">Shesh Besh</div>
         <button @click="newGame" class="new-game">New Game</button>
+        <button @click="getAiRecommendation" class="ai">Get AI tip</button>
       </header>
       <!-- <GameLogs v-if="boardIsReady" /> -->
     </div>
@@ -32,10 +33,14 @@ export default {
   async mounted() {
     await gameMixin.methods.startGame();
     this.boardIsReady = true;
+    gameMixin.methods.pollServer()
   },
   methods: {
     async newGame() {
       await gameMixin.methods.createNewGame();
+    },
+    async getAiRecommendation() {
+      gameMixin.methods.getAiRecommendation();
     },
   },
 };

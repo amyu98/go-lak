@@ -5,15 +5,20 @@ import (
 	"net/http"
 
 	"github.com/amyu98/go-lak/src/constants"
-	"github.com/amyu98/go-lak/src/gamedb"
+	dbaccessinstance "github.com/amyu98/go-lak/src/dbacessinstance"
+	"github.com/amyu98/go-lak/src/gameai"
 	"github.com/amyu98/go-lak/src/gamelogger"
 	"github.com/amyu98/go-lak/src/models"
 	"github.com/amyu98/go-lak/src/statemanager"
 )
 
-func NewGame(w http.ResponseWriter) {
+type Controller struct {
+	Db *dbaccessinstance.DBAccessInstance
+}
+
+func (controller *Controller) NewGame(w http.ResponseWriter) {
 	initState := constants.GetInitState()
-	slug := gamedb.GenerateSlug(10)
+	slug := controller.Db.GenerateSlug()
 	startingPlayer := "black"
 	state := models.State{
 		Slug:          slug,
@@ -21,19 +26,21 @@ func NewGame(w http.ResponseWriter) {
 		CurrentPlayer: startingPlayer,
 		WhiteJail:     0,
 		BlackJail:     0,
-		WhiteGoals:     0,
-		BlackGoals:     0,
+		WhiteGoals:    0,
+		BlackGoals:    0,
 		DiceRoll:      [2]int{0, 0},
 		SelectedCell:  -99,
 		PossibleMoves: []int{},
 		Tick:          0,
 		Logs:          []models.GameLog{},
 		Victory:       "",
+		ShouldRecord:  true,
+		PlayersType:   "AI-HUMAN",
 	}
 	gamelogger.LogMessage(&state, "Starting new game with slug: "+slug)
 	gamelogger.LogMessage(&state, "Starting player: "+startingPlayer)
 	statemanager.RollDice(&state)
-	gamedb.SaveGame(&state)
+	controller.Db.WriteState(&state)
 	res, err := json.Marshal(state)
 	if err != nil {
 		panic(err)
@@ -41,18 +48,7 @@ func NewGame(w http.ResponseWriter) {
 	w.Write(res)
 }
 
-func RollDice(w http.ResponseWriter, s *models.State) {
-	statemanager.RollDice(s)
-	res, err := json.Marshal(s)
-	if err != nil {
-		panic(err)
-	}
-	gamedb.SaveGame(s)
-	w.Write(res)
-}
-
-func GetGame(w http.ResponseWriter, s *models.State) {
-	s.SelectedCell = -99
+func (controller *Controller) GetGame(w http.ResponseWriter, s *models.State) {
 	res, err := json.Marshal(s)
 	if err != nil {
 		panic(err)
@@ -60,8 +56,8 @@ func GetGame(w http.ResponseWriter, s *models.State) {
 	w.Write(res)
 }
 
-func SelectCell(w http.ResponseWriter, s *models.State, cellIndex int) {
-	piecesInCell := getPieceCountInCell(s, cellIndex)
+func (controller *Controller) SelectCell(w http.ResponseWriter, s *models.State, cellIndex int) {
+	piecesInCell := controller.getPieceCountInCell(s, cellIndex)
 	if piecesInCell == 0 {
 		s.SelectedCell = -99
 		s.PossibleMoves = []int{}
@@ -83,11 +79,11 @@ func SelectCell(w http.ResponseWriter, s *models.State, cellIndex int) {
 	if err != nil {
 		panic(err)
 	}
-	gamedb.SaveGame(s)
+	controller.Db.WriteState(s)
 	w.Write(res)
 }
 
-func getPieceCountInCell(s *models.State, cellIndex int) int {
+func (controller *Controller) getPieceCountInCell(s *models.State, cellIndex int) int {
 	if cellIndex == -1 {
 		return s.BlackJail
 	}
@@ -103,7 +99,7 @@ func getPieceCountInCell(s *models.State, cellIndex int) int {
 	return s.Board[cellIndex].BlackPieces + s.Board[cellIndex].WhitePieces
 }
 
-func MovePiece(w http.ResponseWriter, s *models.State, targetCell int) {
+func (controller *Controller) MovePiece(w http.ResponseWriter, s *models.State, targetCell int) {
 	isPossibleMove := false
 	for _, possibleMove := range s.PossibleMoves {
 		if possibleMove == targetCell {
@@ -121,6 +117,16 @@ func MovePiece(w http.ResponseWriter, s *models.State, targetCell int) {
 	if err != nil {
 		panic(err)
 	}
-	gamedb.SaveGame(s)
+	controller.Db.WriteState(s)
+	w.Write(res)
+}
+
+func (controller *Controller) AiRecommendation(w http.ResponseWriter, s *models.State) {
+	gameai.GenerateActionsForState(s)
+	m := s.ToMap()
+	res, err := json.Marshal(m)
+	if err != nil {
+		panic(err)
+	}
 	w.Write(res)
 }

@@ -1,1 +1,52 @@
-{"eylvygjbme":{"Slug":"eylvygjbme","Board":[{"Index":0,"WhitePieces":0,"BlackPieces":0},{"Index":1,"WhitePieces":0,"BlackPieces":0},{"Index":2,"WhitePieces":0,"BlackPieces":0},{"Index":3,"WhitePieces":0,"BlackPieces":0},{"Index":4,"WhitePieces":0,"BlackPieces":0},{"Index":5,"WhitePieces":0,"BlackPieces":0},{"Index":6,"WhitePieces":0,"BlackPieces":0},{"Index":7,"WhitePieces":0,"BlackPieces":0},{"Index":8,"WhitePieces":0,"BlackPieces":0},{"Index":9,"WhitePieces":0,"BlackPieces":0},{"Index":10,"WhitePieces":0,"BlackPieces":0},{"Index":11,"WhitePieces":0,"BlackPieces":0},{"Index":12,"WhitePieces":0,"BlackPieces":0},{"Index":13,"WhitePieces":0,"BlackPieces":0},{"Index":14,"WhitePieces":0,"BlackPieces":0},{"Index":15,"WhitePieces":0,"BlackPieces":0},{"Index":16,"WhitePieces":0,"BlackPieces":0},{"Index":17,"WhitePieces":0,"BlackPieces":0},{"Index":18,"WhitePieces":0,"BlackPieces":0},{"Index":19,"WhitePieces":0,"BlackPieces":0},{"Index":20,"WhitePieces":0,"BlackPieces":0},{"Index":21,"WhitePieces":0,"BlackPieces":0},{"Index":22,"WhitePieces":0,"BlackPieces":0},{"Index":23,"WhitePieces":0,"BlackPieces":0}],"CurrentPlayer":"white","WhiteJail":0,"BlackJail":0,"WhiteGoals":1,"BlackGoals":0,"DiceRoll":[1,4],"SelectedCell":0,"PossibleMoves":[30,30],"UsedMoves":null,"Tick":0,"Logs":[{"Tick":0,"Msg":"Starting new game with slug: eylvygjbme"},{"Tick":0,"Msg":"Starting player: black"},{"Tick":0,"Msg":"Dice roll: 1 4"},{"Tick":0,"Msg":"white Moved piece from 0 to 30"},{"Tick":0,"Msg":"white wins!"}],"Victory":"white"},"xvfylosljz":{"Slug":"xvfylosljz","Board":[{"Index":0,"WhitePieces":0,"BlackPieces":2},{"Index":1,"WhitePieces":0,"BlackPieces":0},{"Index":2,"WhitePieces":0,"BlackPieces":0},{"Index":3,"WhitePieces":0,"BlackPieces":0},{"Index":4,"WhitePieces":0,"BlackPieces":0},{"Index":5,"WhitePieces":5,"BlackPieces":0},{"Index":6,"WhitePieces":0,"BlackPieces":0},{"Index":7,"WhitePieces":3,"BlackPieces":0},{"Index":8,"WhitePieces":0,"BlackPieces":0},{"Index":9,"WhitePieces":0,"BlackPieces":0},{"Index":10,"WhitePieces":0,"BlackPieces":0},{"Index":11,"WhitePieces":0,"BlackPieces":5},{"Index":12,"WhitePieces":5,"BlackPieces":0},{"Index":13,"WhitePieces":0,"BlackPieces":0},{"Index":14,"WhitePieces":0,"BlackPieces":0},{"Index":15,"WhitePieces":0,"BlackPieces":0},{"Index":16,"WhitePieces":0,"BlackPieces":3},{"Index":17,"WhitePieces":0,"BlackPieces":0},{"Index":18,"WhitePieces":0,"BlackPieces":5},{"Index":19,"WhitePieces":0,"BlackPieces":0},{"Index":20,"WhitePieces":0,"BlackPieces":0},{"Index":21,"WhitePieces":0,"BlackPieces":0},{"Index":22,"WhitePieces":0,"BlackPieces":0},{"Index":23,"WhitePieces":2,"BlackPieces":0}],"CurrentPlayer":"black","WhiteJail":0,"BlackJail":0,"WhiteGoals":0,"BlackGoals":0,"DiceRoll":[5,2],"SelectedCell":-99,"PossibleMoves":[],"UsedMoves":null,"Tick":0,"Logs":[{"Tick":0,"Msg":"Starting new game with slug: xvfylosljz"},{"Tick":0,"Msg":"Starting player: black"},{"Tick":0,"Msg":"Dice roll: 5 2"}],"Victory":""}}
+{
+  "nznzezccfv": {
+    "Slug": "nznzezccfv",
+    "Board": [
+      { "Index": 0, "WhitePieces": 4, "BlackPieces": 0 },
+      { "Index": 1, "WhitePieces": 5, "BlackPieces": 0 },
+      { "Index": 2, "WhitePieces": 4, "BlackPieces": 0 },
+      { "Index": 3, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 4, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 5, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 6, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 7, "WhitePieces": 0, "BlackPieces": 1 },
+      { "Index": 8, "WhitePieces": 1, "BlackPieces": 0 },
+      { "Index": 9, "WhitePieces": 1, "BlackPieces": 0 },
+      { "Index": 10, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 11, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 12, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 13, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 14, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 15, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 16, "WhitePieces": 0, "BlackPieces": 1 },
+      { "Index": 17, "WhitePieces": 0, "BlackPieces": 3 },
+      { "Index": 18, "WhitePieces": 0, "BlackPieces": 3 },
+      { "Index": 19, "WhitePieces": 0, "BlackPieces": 0 },
+      { "Index": 20, "WhitePieces": 0, "BlackPieces": 2 },
+      { "Index": 21, "WhitePieces": 0, "BlackPieces": 2 },
+      { "Index": 22, "WhitePieces": 0, "BlackPieces": 3 },
+      { "Index": 23, "WhitePieces": 0, "BlackPieces": 0 }
+    ],
+    "CurrentPlayer": "black",
+    "WhiteJail": 0,
+    "BlackJail": 0,
+    "WhiteGoals": 0,
+    "BlackGoals": 0,
+    "DiceRoll": [2, 3],
+    "SelectedCell": -99,
+    "PossibleMoves": [],
+    "UsedMoves": [],
+    "Tick": 32,
+    "Logs": [
+      { "Tick": 31, "Msg": "black Moved piece from 12 to 16" },
+      { "Tick": 31, "Msg": "Usable moves: 2" },
+      { "Tick": 31, "Msg": "black Moved piece from 18 to 20" },
+      { "Tick": 32, "Msg": "Next turn: white" },
+      { "Tick": 32, "Msg": "Dice roll: 2 3" },
+      { "Tick": 32, "Msg": "Usable moves: 2, 3" }
+    ],
+    "Victory": "",
+    "ShouldRecord": true,
+    "PlayersType": "AI-HUMAN"
+  }
+}

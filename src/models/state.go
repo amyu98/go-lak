@@ -2,6 +2,7 @@ package models
 
 import (
 	"golang.org/x/exp/slices"
+	"reflect"
 )
 
 type State struct {
@@ -10,15 +11,17 @@ type State struct {
 	CurrentPlayer string
 	WhiteJail     int
 	BlackJail     int
-	WhiteGoals     int
-	BlackGoals     int
+	WhiteGoals    int
+	BlackGoals    int
 	DiceRoll      [2]int
 	SelectedCell  int
 	PossibleMoves []int
 	UsedMoves     []int
 	Tick          int
 	Logs          []GameLog
-	Victory	   	  string
+	Victory       string
+	ShouldRecord  bool
+	PlayersType   string
 }
 
 func (s *State) EnemiesAt(cellIndex int) *int {
@@ -136,6 +139,34 @@ func (s *State) FriendlyInEndGame() bool {
 		}
 	}
 	return true
+}
+
+func (s *State) ToMap() map[int]int {
+	m := make(map[int]int)
+	for _, cell := range s.Board {
+		if *s.FriendsAt(cell.Index) > 0 {
+			m[cell.Index] = *s.FriendsAt(cell.Index)
+		} else if *s.EnemiesAt(cell.Index) > 0 {
+			m[cell.Index] = -1 * *s.EnemiesAt(cell.Index)
+		} else {
+			m[cell.Index] = 0
+		}
+	}
+	m[s.FriendlyJailIndex()] = *s.FriendlyJail()
+	m[s.EnemyJailIndex()] = *s.EnemyJail()
+	// m[30] = s.WhiteGoals
+	// m[-30] = s.BlackGoals
+	return m
+}
+
+func (s *State) CloneState() *State {
+	stateClone := reflect.ValueOf(s).Elem().Interface().(State)
+	stateClone.DoNotRecord()
+	return &stateClone
+}
+
+func (s *State) DoNotRecord() {
+	s.ShouldRecord = false
 }
 
 type GameLog struct {

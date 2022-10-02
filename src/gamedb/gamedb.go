@@ -10,13 +10,13 @@ import (
 	"github.com/amyu98/go-lak/src/models"
 )
 
-func LoadGame(slug string) (*models.State) {
-	allStates := readDB()
+func LoadGame(slug string) *models.State {
+	allStates := ReadDB()
 	return allStates[slug]
 }
 
 func SaveGame(s *models.State) {
-	allStates := readDB()
+	allStates := ReadDB()
 
 	if allStates == nil {
 		allStates = make(map[string]*models.State)
@@ -25,7 +25,7 @@ func SaveGame(s *models.State) {
 	writeDB(allStates)
 }
 
-func readDB() (map[string]*models.State) {
+func ReadDB() map[string]*models.State {
 	pathToDB := dbPath()
 	fileContents, err := os.Open(pathToDB)
 	if err != nil {
@@ -45,12 +45,12 @@ func writeDB(states map[string]*models.State) {
 	}
 
 	err := os.WriteFile(pathToDB, []byte(statesToJSON(states)), 0644)
-    if err != nil {
+	if err != nil {
 		panic(err)
-    }
+	}
 }
 
-func statesToJSON(states map[string]*models.State) (string) {
+func statesToJSON(states map[string]*models.State) string {
 	json, err := json.Marshal(states)
 	if err != nil {
 		panic(err)
@@ -58,17 +58,17 @@ func statesToJSON(states map[string]*models.State) (string) {
 	return string(json)
 }
 
-func GenerateSlug(n int) (string) {
-		rand.Seed(time.Now().UnixNano())
-		var letters = []rune("abcdefghijklmnopqrstuvwxyz")
-		b := make([]rune, n)
-		for i := range b {
-			b[i] = letters[rand.Intn(len(letters))]
-		}
-		return string(b)
+func GenerateSlug(n int) string {
+	rand.Seed(time.Now().UnixNano())
+	var letters = []rune("abcdefghijklmnopqrstuvwxyz")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }
 
-func dbPath() (string) {
+func dbPath() string {
 	// Print working directory
 	wd := os.Getenv("PWD")
 	return wd + "/src/gamedb/db.json"

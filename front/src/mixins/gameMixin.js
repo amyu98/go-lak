@@ -1,5 +1,11 @@
 import { useBoardState } from "../store/state";
-import { getGame, createNewGame, selectCell, movePiece } from "../api";
+import {
+  getGame,
+  createNewGame,
+  selectCell,
+  movePiece,
+  getAiRecommendation,
+} from "../api";
 
 export const gameMixin = {
   data() {
@@ -59,7 +65,17 @@ export const gameMixin = {
       this.state = useBoardState();
       const s = await movePiece(cell);
       this.state.setBoardState(s);
-    }
-
+    },
+    async getAiRecommendation() {
+      this.state = useBoardState();
+      const rec = await getAiRecommendation();
+      console.log(rec);
+    },
+    pollServer() {
+      setInterval(async () => {
+        const s = await getGame();
+        this.state.setBoardState(s);
+      }, 1000);
+    },
   },
 };

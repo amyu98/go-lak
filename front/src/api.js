@@ -51,3 +51,10 @@ export const gameSlugPrefix = () => {
     const boardState = useBoardState();
     return `slug=${boardState.slug}`;
 }
+
+export const getAiRecommendation = async () => {
+    const data = await axios.get(
+        `${gameSlugPrefix()}/ai_recommendation`
+    );
+    return data.data;
+}
