@@ -159,10 +159,10 @@ func (s *State) ToMap() map[int]int {
 	return m
 }
 
-func (s *State) CloneState() *State {
+func (s *State) CloneState() State {
 	stateClone := reflect.ValueOf(s).Elem().Interface().(State)
 	stateClone.DoNotRecord()
-	return &stateClone
+	return stateClone
 }
 
 func (s *State) DoNotRecord() {

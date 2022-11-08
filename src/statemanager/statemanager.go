@@ -2,13 +2,13 @@ package statemanager
 
 import (
 	"fmt"
+	"github.com/amyu98/go-lak/src/gamelogger"
+	"github.com/amyu98/go-lak/src/models"
 	"math"
 	"math/rand"
 	"reflect"
 	"strconv"
 	"strings"
-	"github.com/amyu98/go-lak/src/gamelogger"
-	"github.com/amyu98/go-lak/src/models"
 )
 
 func GetPossibleMoves(s *models.State) []int {
@@ -28,14 +28,8 @@ func GetPossibleMoves(s *models.State) []int {
 			}
 			continue
 		}
-		if s.CurrentPlayer == "black" {
-			if s.Board[possibleCell].WhitePieces > 1 {
-				continue
-			}
-		} else {
-			if s.Board[possibleCell].BlackPieces > 1 {
-				continue
-			}
+		if *s.EnemiesAt(possibleCell) > 1 {
+			continue
 		}
 		possibleCells = append(possibleCells, possibleCell)
 	}
@@ -87,7 +81,6 @@ func MovePiece(s *models.State, targetCell int) {
 		s.Victory = s.CurrentPlayer
 		return
 	}
-
 
 	moveValue := int(math.Abs(float64(int(targetCell - s.SelectedCell))))
 	if targetCell == 30 || targetCell == -30 {

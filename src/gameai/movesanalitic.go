@@ -1,6 +1,8 @@
 package gameai
 
 import (
+	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"sort"
 
@@ -8,7 +10,7 @@ import (
 	"github.com/amyu98/go-lak/src/statemanager"
 )
 
-type Move struct {
+type Proposal struct {
 	// MoveId                    int
 	Actions [][]Action
 	// EatenEnemies              int
@@ -25,6 +27,13 @@ type Action struct {
 	To   int
 }
 
+type Move []Action
+
+type PlanMetaData struct {
+	color         string
+	optionalMoves []Move
+}
+
 func GenerateActionsForState(state *models.State) [][]Action {
 	everyPossibleAction := generateEveryPossibleAction(state)
 	for i := 0; i < len(everyPossibleAction); i++ {
@@ -35,13 +44,14 @@ func GenerateActionsForState(state *models.State) [][]Action {
 }
 
 func generateEveryPossibleAction(state *models.State) [][]Action {
-	stateAsMap := state.ToMap()
-	fmt.Println("Map: ", stateAsMap)
+	stateClone := state.CloneState()
+	stateAsMap := stateClone.ToMap()
 	actionsList := [][]Action{}
+	planMetaData := PlanMetaData{color: stateClone.CurrentPlayer, optionalMoves: []Move{}}
 	for key, value := range stateAsMap {
 		if value > 0 {
 			fmt.Println("Generating actions for ", key)
-			addActionsFromEntryPoint(state, key, []Action{}, &actionsList)
+			addActionsFromEntryPoint(stateClone, key, Move{}, &planMetaData)
 		}
 	}
 	return actionsList
@@ -69,6 +79,7 @@ func sortActions(actions []Action) []Action {
 		iIsLowerThanJ := actions[i].From < actions[j].From || actions[i].To < actions[j].To
 		return iIsLowerThanJ
 	})
+
 	return actions
 }
 
@@ -84,41 +95,59 @@ func isSameAction(action1 []Action, action2 []Action) bool {
 	return true
 }
 
-func addActionsFromEntryPoint(state *models.State, entryPoint int, previosActions []Action, actionsList *[][]Action) {
-	fmt.Println("Entry point: ", entryPoint)
-	color := state.CurrentPlayer
-	stateClone := state.CloneState()
-	statemanager.SelectCell(stateClone, entryPoint)
-	possibleMoves := statemanager.GetPossibleMoves(stateClone)
-	fmt.Println("Dice:", state.DiceRoll)
-	fmt.Println("Possible moves: ", possibleMoves)
-	if *state.FriendlyJail() > 0 {
-		if entryPoint != state.FriendlyJailIndex() {
-			fmt.Println("Friendly jail is not empty, cannot play")
-			return
-		}
-	}
-	for _, move := range possibleMoves {
-		stateClone2 := stateClone.CloneState()
-		fmt.Println("Moving from ", entryPoint, " to ", move)
-		statemanager.MovePiece(stateClone2, move)
-		fmt.Println("Actions before: ", previosActions)
-		previosActionsClone := make([]Action, len(previosActions))
-		copy(previosActionsClone, previosActions)
-		previosActionsClone = append(previosActionsClone, Action{From: entryPoint, To: move})
-		fmt.Println("Actions after: ", previosActionsClone)
+func addActionsFromEntryPoint(state models.State, entryPoint int, move Move, planMetaData *PlanMetaData) {
 
-		// On tv mode this can go wrong
-		if stateClone2.CurrentPlayer == color {
-			fmt.Println("Same player, adding actions")
+	stateClone := state.CloneState()
+
+	stateClone.SelectedCell = -99
+	statemanager.SelectCell(&stateClone, entryPoint)
+	possibleMoves := statemanager.GetPossibleMoves(&stateClone)
+
+	if !canMove(&stateClone, entryPoint, possibleMoves) {
+		return
+	}
+
+	fmt.Println("Number of possible moves: ", len(possibleMoves))
+
+	for _, possibleMove := range possibleMoves {
+
+		fmt.Println("Possible move: ", possibleMove)
+
+		stateClone2 := stateClone.CloneState()
+		statemanager.MovePiece(&stateClone2, possibleMove)
+		moveClone := make([]Action, len(move))
+		copy(moveClone, move)
+		moveClone = append(moveClone, Action{From: entryPoint, To: possibleMove})
+
+		stillAiTurn := stateClone2.CurrentPlayer == planMetaData.color
+		if stillAiTurn {
+			fmt.Println("Still AI turn, going deeper")
 			stateAsMap := stateClone2.ToMap()
 			for key, value := range stateAsMap {
 				if value > 0 {
-					addActionsFromEntryPoint(stateClone2, key, previosActionsClone, actionsList)
+					addActionsFromEntryPoint(stateClone2, key, moveClone, planMetaData)
 				}
 			}
 		} else {
-			*actionsList = append(*actionsList, previosActionsClone)
+			// fmt.Println("Move: ", moveClone)
 		}
 	}
+}
+
+func canMove(state *models.State, entryPoint int, possibleMoves []int) bool {
+	if len(possibleMoves) < 1 {
+		return false
+	}
+	if *state.FriendlyJail() > 0 {
+		if entryPoint != state.FriendlyJailIndex() {
+			return false
+		}
+	}
+	return true
+}
+
+func asJsonString(o any) string {
+	output, _ := json.Marshal(o)
+	return string(output)
+
 }
